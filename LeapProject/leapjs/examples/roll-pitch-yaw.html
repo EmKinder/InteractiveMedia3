@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dumper - Leap</title>
+    <script src="../leap-1.1.1.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.4.1/lib/p5.js"></script>
+    <script src="../p5.sound.js"></script>
+    <script>
+      var paused = false;
+      var latestFrame; // Declare a variable to hold the latest frame from Leap Motion
+      var song;
+
+      window.onkeypress = function(e) {
+        if (e.charCode == 32) {
+          if (paused == false) {
+            paused = true;
+          } else {
+            paused = false;
+          }
+        }
+      };
+
+      var controller = new Leap.Controller();
+      controller.loop(function(frame) {
+        latestFrame = frame; 
+        if (paused) {
+          document.getElementById('pause').innerHTML = "<strong>PAUSED</strong>";
+          return;
+        }
+      });
+
+      // Rest of your Leap Motion event handlers
+     // function preload() {
+       // soundFormats('mp3', 'ogg');
+       // song = loadSound('AllTooWell.mp3');
+      //}
+
+      function setup() {
+        const myCanvas = createCanvas(400, 400);
+        myCanvas.parent("canvasDiv"); // Set the canvas parent to "canvasDiv"
+        background(220);
+        rectMode(CENTER);
+        noStroke();
+        colorMode(HSB, 360, 255, 255);
+        //song = loadSound("AllTooWell.mp3");
+        //song.play();
+       // osc = new p5.Oscillator('sine');
+       // osc.start();
+        
+       // song.play();
+      }
+
+      function draw() {
+        // fill('rgba(0,0,0, 0.1)');
+        fill(127);
+        rect(width / 2, height / 2, width, height);
+        fill(0);
+
+        if (latestFrame) {
+          for (var i in latestFrame.handsMap) {
+            var hand = latestFrame.handsMap[i];
+            var mappedX = map(hand.palmPosition[0], -200, 200, 0, width);
+            var mappedZ = map(hand.palmPosition[2], -200, 200, 0, height);
+            if (hand.grabStrength >= 0.8) {
+              if(hand.palmNormal[1] < 0){
+                rect(mappedX, mappedZ, 50, 50);
+
+              }
+              else{
+                rect(mappedX, mappedZ, 75, 50);
+              }
+              
+            }
+            else{
+              if(hand.palmNormal[1] < 0){
+                ellipse(mappedX, mappedZ, 50, 50);  
+                var ampValue = map(mappedZ, 0, height, 0, 1);
+                var freqValue = map(mappedX, 0, height, 0, 1);
+               // osc.freq(freqValue, 0.5);
+                //osc.amp(ampValue, 0.5);
+              }
+              else{
+                ellipse(mappedX, mappedZ, 75, 50);
+              }
+              
+            }
+            
+          }
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="pause"></div>
+    <div id="out"></div>
+    <div id="canvasDiv"></div>
+  </body>
+</html>
