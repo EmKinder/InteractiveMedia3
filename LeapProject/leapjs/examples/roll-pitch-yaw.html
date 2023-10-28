@@ -51,6 +51,8 @@
     let buttonRecord4;
     let buttonPlayback4;
     let buttonPlaybackAll;
+    let playbackLengthSlider;
+    
 
     let timer = 10
     var timerOn = false;
@@ -87,9 +89,14 @@
     }
 
     function draw() {
+      if(!playAll && !playback && !timerOn)
+        timer = playbackLengthSlider.value();
+      textSize(100);
+      text(str(timer), 562.5, 40);
       fill(127);
       rect(width / 2, height / 2, width, height);
       fill(0);
+
 
       if (latestFrame && !playback) {
         for (var i in latestFrame.handsMap) {
@@ -322,56 +329,60 @@
     }
 
     function CreateButtons() {
+
+      playbackLengthSlider = createSlider(0, 20, 10, 1);
+      playbackLengthSlider.position(562.5, 25);
+      playbackLengthSlider.style('width', '150px');
       //1
       buttonRecord1 = createButton('Record Track 1');
-      buttonRecord1.position(500, 0);
+      buttonRecord1.position(500, 75);
       buttonRecord1.mousePressed(function () {
         RecordTrack(1);
       });
       buttonPlayback1 = createButton('Play Track 1');
-      buttonPlayback1.position(625, 0);
+      buttonPlayback1.position(625, 75);
       buttonPlayback1.mousePressed(function () {
         Playback(1);
       });
 
       //2
       buttonRecord2 = createButton('Record Track 2');
-      buttonRecord2.position(500, 25);
+      buttonRecord2.position(500, 100);
       buttonRecord2.mousePressed(function () {
         RecordTrack(2);
       });
       buttonPlayback2 = createButton('Play Track 2');
-      buttonPlayback2.position(625, 25);
+      buttonPlayback2.position(625, 100);
       buttonPlayback2.mousePressed(function () {
         Playback(2);
       });
 
       //3
       buttonRecord3 = createButton('Record Track 3');
-      buttonRecord3.position(500, 50);
+      buttonRecord3.position(500, 125);
       buttonRecord3.mousePressed(function () {
         RecordTrack(3);
       });
       buttonPlayback3 = createButton('Play Track 3');
-      buttonPlayback3.position(625, 50);
+      buttonPlayback3.position(625, 125);
       buttonPlayback3.mousePressed(function () {
         Playback(3);
       });
 
       //4
       buttonRecord4 = createButton('Record Track 4');
-      buttonRecord4.position(500, 75);
+      buttonRecord4.position(500, 150);
       buttonRecord4.mousePressed(function () {
         RecordTrack(4);
       });
       buttonPlayback4 = createButton('Play Track 4');
-      buttonPlayback4.position(625, 75);
+      buttonPlayback4.position(625, 150);
       buttonPlayback4.mousePressed(function () {
         Playback(4);
       });
 
       buttonPlayback4 = createButton('Play All Tracks');
-      buttonPlayback4.position(562.5, 100);
+      buttonPlayback4.position(562.5, 175);
       buttonPlayback4.mousePressed(function () {
         PlayAll();
       });
