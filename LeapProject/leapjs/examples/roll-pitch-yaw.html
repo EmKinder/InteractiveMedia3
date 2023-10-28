@@ -1,98 +1,390 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Dumper - Leap</title>
-    <script src="../leap-1.1.1.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/p5@1.4.1/lib/p5.js"></script>
-    <script src="../p5.sound.js"></script>
-    <script>
-      var paused = false;
-      var latestFrame; // Declare a variable to hold the latest frame from Leap Motion
-      var song;
 
-      window.onkeypress = function(e) {
-        if (e.charCode == 32) {
-          if (paused == false) {
-            paused = true;
-          } else {
-            paused = false;
-          }
+<head>
+  <title>Dumper - Leap</title>
+  <script src="../leap-1.1.1.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.4.1/lib/p5.js"></script>
+  <script src="../p5.sound.js"></script>
+  <script>
+    var paused = false;
+    var latestFrame; // Declare a variable to hold the latest frame from Leap Motion
+    var song;
+    var palmScreen;
+    var fistOpen;
+    var mappedX;
+    var mappedZ;
+
+    var xPos1 = [];
+    var zPos1 = [];
+    var palmPos1 = [];
+    var fist1 = [];
+    var xPos2 = [];
+    var zPos2 = [];
+    var palmPos2 = [];
+    var fist2 = [];
+    var xPos3 = [];
+    var zPos3 = [];
+    var palmPos3 = [];
+    var fist3 = [];
+    var xPos4 = [];
+    var zPos4 = [];
+    var palmPos4 = [];
+    var fist4 = [];
+
+    var activeXPosPlayback = [];
+    var activeZPosPlayback = [];
+    var activePalmPosPlayback = [];
+    var activeFistOpenPlayback = [];
+
+    var activeTrack;
+    var activePlaybackTrack;
+    var playback;
+    var playAll = false;
+
+    let buttonRecord1;
+    let buttonPlayback1;
+    let buttonRecord2;
+    let buttonPlayback2;
+    let buttonRecord3;
+    let buttonPlayback3;
+    let buttonRecord4;
+    let buttonPlayback4;
+    let buttonPlaybackAll;
+
+    let timer = 10
+    var timerOn = false;
+    var index = 0;
+
+
+    window.onkeypress = function (e) {
+      if (e.charCode == 32) {
+        if (paused == false) {
+          paused = true;
+        } else {
+          paused = false;
         }
-      };
+      }
+    };
 
-      var controller = new Leap.Controller();
-      controller.loop(function(frame) {
-        latestFrame = frame; 
-        if (paused) {
-          document.getElementById('pause').innerHTML = "<strong>PAUSED</strong>";
+    var controller = new Leap.Controller();
+    controller.loop(function (frame) {
+      latestFrame = frame;
+      if (paused) {
+        document.getElementById('pause').innerHTML = "<strong>PAUSED</strong>";
+        return;
+      }
+    });
+
+    function setup() {
+      const myCanvas = createCanvas(400, 400);
+      myCanvas.parent("canvasDiv");
+      background(220);
+      rectMode(CENTER);
+      noStroke();
+      colorMode(HSB, 360, 255, 255);
+      CreateButtons();
+    }
+
+    function draw() {
+      fill(127);
+      rect(width / 2, height / 2, width, height);
+      fill(0);
+
+      if (latestFrame && !playback) {
+        for (var i in latestFrame.handsMap) {
+          var hand = latestFrame.handsMap[i];
+          mappedX = map(hand.palmPosition[0], -200, 200, 0, width);
+          mappedZ = map(hand.palmPosition[2], -200, 200, 0, height);
+          if (hand.grabStrength >= 0.8) {
+            if (hand.palmNormal[1] < 0) {
+              rect(mappedX, mappedZ, 50, 50);
+              palmScreen = true;
+            }
+            else {
+              rect(mappedX, mappedZ, 75, 50);
+              palmScreen = false;
+            }
+            fistOpen = false;
+          }
+          else {
+            if (hand.palmNormal[1] < 0) {
+              ellipse(mappedX, mappedZ, 50, 50);
+              palmScreen = true;
+            }
+            else {
+              ellipse(mappedX, mappedZ, 75, 50);
+              palmScreen = false;
+            }
+            fistOpen = true;
+          }
+
+        }
+      }
+      if (timerOn) {
+        if (activeTrack == 1) {
+          xPos1.push(mappedX);
+          zPos1.push(mappedZ);
+          fist1.push(fistOpen);
+          palmPos1.push(palmScreen);
+        }
+        else if (activeTrack == 2) {
+          xPos2.push(mappedX);
+          zPos2.push(mappedZ);
+          fist2.push(fistOpen);
+          palmPos2.push(palmScreen);
+        }
+        else if (activeTrack == 3) {
+          xPos3.push(mappedX);
+          zPos3.push(mappedZ);
+          fist3.push(fistOpen);
+          palmPos3.push(palmScreen);
+        }
+        else if (activeTrack == 4) {
+          xPos4.push(mappedX);
+          zPos4.push(mappedZ);
+          fist4.push(fistOpen);
+          palmPos4.push(palmScreen);
+        }
+
+        //text(timer, 550, 0);
+        if (frameCount % 60 == 0 && timer > 0) {
+
+          timer--;
+          console.log(timer);
+        }
+        if (timer == 0) {
+          text("Recorded", width / 2, height * 0.7);
+          timerOn = false;
+          timer = 10;
+          activeTrack = 0;
+        }
+      }
+
+      if (playback && !playAll) {
+        if (index < activeXPosPlayback.length) {
+          var thisMappedX = activeXPosPlayback[index];
+          var thisMappedZ = activeZPosPlayback[index];
+          var thisPalmScreen = activePalmPosPlayback[index];
+          var thisFistOpen = activeFistOpenPlayback[index];
+          if (thisFistOpen) {
+            if (thisPalmScreen)
+              ellipse(thisMappedX, thisMappedZ, 50, 50);
+            else
+              ellipse(thisMappedX, thisMappedZ, 75, 50);
+          }
+          else {
+            if (thisPalmScreen)
+              rect(thisMappedX, thisMappedZ, 50, 50);
+            else
+              rect(thisMappedX, thisMappedZ, 75, 50);
+          }
+
+          index++
           return;
         }
-      });
-
-      // Rest of your Leap Motion event handlers
-     // function preload() {
-       // soundFormats('mp3', 'ogg');
-       // song = loadSound('AllTooWell.mp3');
-      //}
-
-      function setup() {
-        const myCanvas = createCanvas(400, 400);
-        myCanvas.parent("canvasDiv"); // Set the canvas parent to "canvasDiv"
-        background(220);
-        rectMode(CENTER);
-        noStroke();
-        colorMode(HSB, 360, 255, 255);
-        //song = loadSound("AllTooWell.mp3");
-        //song.play();
-       // osc = new p5.Oscillator('sine');
-       // osc.start();
-        
-       // song.play();
-      }
-
-      function draw() {
-        // fill('rgba(0,0,0, 0.1)');
-        fill(127);
-        rect(width / 2, height / 2, width, height);
-        fill(0);
-
-        if (latestFrame) {
-          for (var i in latestFrame.handsMap) {
-            var hand = latestFrame.handsMap[i];
-            var mappedX = map(hand.palmPosition[0], -200, 200, 0, width);
-            var mappedZ = map(hand.palmPosition[2], -200, 200, 0, height);
-            if (hand.grabStrength >= 0.8) {
-              if(hand.palmNormal[1] < 0){
-                rect(mappedX, mappedZ, 50, 50);
-
-              }
-              else{
-                rect(mappedX, mappedZ, 75, 50);
-              }
-              
-            }
-            else{
-              if(hand.palmNormal[1] < 0){
-                ellipse(mappedX, mappedZ, 50, 50);  
-                var ampValue = map(mappedZ, 0, height, 0, 1);
-                var freqValue = map(mappedX, 0, height, 0, 1);
-               // osc.freq(freqValue, 0.5);
-                //osc.amp(ampValue, 0.5);
-              }
-              else{
-                ellipse(mappedX, mappedZ, 75, 50);
-              }
-              
-            }
-            
-          }
+        else {
+          playback = false;
+          index = 0;
+          activePlaybackTrack = 0;
         }
       }
-    </script>
-  </head>
-  <body>
-    <div id="pause"></div>
-    <div id="out"></div>
-    <div id="canvasDiv"></div>
-  </body>
+
+      if (playAll && !playback) {
+        if (index < xPos1.length || index < xPos2.length || index < xPos3.length || index < xPos4.length) {
+          if (fist1[index]) {
+            if (palmPos1[index])
+              ellipse(xPos1[index], zPos1[index], 50, 50);
+            else
+              ellipse(xPos1[index], zPos1[index], 75, 50);
+          }
+          else {
+            if (palmPos1[index])
+              rect(xPos1[index], zPos1[index], 50, 50);
+            else
+              rect(xPos1[index], zPos1[index], 75, 50);
+          }
+
+          if (fist2[index]) {
+            if (palmPos2[index])
+              ellipse(xPos2[index], zPos2[index], 50, 50);
+            else
+              ellipse(xPos2[index], zPos2[index], 75, 50);
+          }
+          else {
+            if (palmPos2[index])
+              rect(xPos2[index], zPos2[index], 50, 50);
+            else
+              rect(xPos2[index], zPos2[index], 75, 50);
+          }
+
+          if (fist3[index]) {
+            if (palmPos3[index])
+              ellipse(xPos3[index], zPos3[index], 50, 50);
+            else
+              ellipse(xPos3[index], zPos3[index], 75, 50);
+          }
+          else {
+            if (palmPos3[index])
+              rect(xPos3[index], zPos3[index], 50, 50);
+            else
+              rect(xPos3[index], zPos3[index], 75, 50);
+          }
+
+          if (fist4[index]) {
+            if (palmPos4[index])
+              ellipse(xPos4[index], zPos4[index], 50, 50);
+            else
+              ellipse(xPos4[index], zPos4[index], 75, 50);
+          }
+          else {
+            if (palmPos4[index])
+              rect(xPos4[index], zPos4[index], 50, 50);
+            else
+              rect(xPos4[index], zPos4[index], 75, 50);
+          }
+
+          index++
+          return;
+        }
+        else {
+          playAll = false;
+          index = 0;
+          //  activePlaybackTrack = 0;
+        }
+      }
+    }
+
+    function RecordTrack(num) {
+      activeTrack = num;
+      if (activeTrack == 1) {
+        xPos1 = [];
+        zPos1 = [];
+        fist1 = [];
+        palmPos1 = [];
+      }
+      else if (activeTrack == 2) {
+        xPos2 = [];
+        zPos2 = [];
+        fist2 = [];
+        palmPos2 = [];
+      }
+      else if (activeTrack == 3) {
+        xPos3 = [];
+        zPos3 = [];
+        fist3 = [];
+        palmPos3 = [];
+      }
+      else if (activeTrack == 4) {
+        xPos4 = [];
+        zPos4 = [];
+        fist4 = [];
+        palmPos4 = [];
+      }
+
+      timerOn = true;
+    }
+
+    function Playback(num) {
+      if (!playAll) {
+        activePlaybackTrack = num;
+        if (activePlaybackTrack == 1) {
+          activeXPosPlayback = xPos1;
+          activeZPosPlayback = zPos1;
+          activePalmPosPlayback = palmPos1;
+          activeFistOpenPlayback = fist1;
+        }
+        else if (activePlaybackTrack == 2) {
+          activeXPosPlayback = xPos2;
+          activeZPosPlayback = zPos2;
+          activePalmPosPlayback = palmPos2;
+          activeFistOpenPlayback = fist2;
+        }
+        else if (activePlaybackTrack == 3) {
+          activeXPosPlayback = xPos3;
+          activeZPosPlayback = zPos3;
+          activePalmPosPlayback = palmPos3;
+          activeFistOpenPlayback = fist3;
+        }
+        else if (activePlaybackTrack == 4) {
+          activeXPosPlayback = xPos4;
+          activeZPosPlayback = zPos4;
+          activePalmPosPlayback = palmPos4;
+          activeFistOpenPlayback = fist4;
+        }
+        playback = true;
+      }
+    }
+
+    function PlayAll() {
+      if(!playback)
+        playAll = true;
+    }
+
+    function CreateButtons() {
+      //1
+      buttonRecord1 = createButton('Record Track 1');
+      buttonRecord1.position(500, 0);
+      buttonRecord1.mousePressed(function () {
+        RecordTrack(1);
+      });
+      buttonPlayback1 = createButton('Play Track 1');
+      buttonPlayback1.position(625, 0);
+      buttonPlayback1.mousePressed(function () {
+        Playback(1);
+      });
+
+      //2
+      buttonRecord2 = createButton('Record Track 2');
+      buttonRecord2.position(500, 25);
+      buttonRecord2.mousePressed(function () {
+        RecordTrack(2);
+      });
+      buttonPlayback2 = createButton('Play Track 2');
+      buttonPlayback2.position(625, 25);
+      buttonPlayback2.mousePressed(function () {
+        Playback(2);
+      });
+
+      //3
+      buttonRecord3 = createButton('Record Track 3');
+      buttonRecord3.position(500, 50);
+      buttonRecord3.mousePressed(function () {
+        RecordTrack(3);
+      });
+      buttonPlayback3 = createButton('Play Track 3');
+      buttonPlayback3.position(625, 50);
+      buttonPlayback3.mousePressed(function () {
+        Playback(3);
+      });
+
+      //4
+      buttonRecord4 = createButton('Record Track 4');
+      buttonRecord4.position(500, 75);
+      buttonRecord4.mousePressed(function () {
+        RecordTrack(4);
+      });
+      buttonPlayback4 = createButton('Play Track 4');
+      buttonPlayback4.position(625, 75);
+      buttonPlayback4.mousePressed(function () {
+        Playback(4);
+      });
+
+      buttonPlayback4 = createButton('Play All Tracks');
+      buttonPlayback4.position(562.5, 100);
+      buttonPlayback4.mousePressed(function () {
+        PlayAll();
+      });
+
+    }
+
+  </script>
+</head>
+
+<body>
+  <div id="pause"></div>
+  <div id="out"></div>
+  <div id="canvasDiv"></div>
+</body>
+
 </html>
