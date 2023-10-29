@@ -149,12 +149,23 @@
       recordingTimer.position(480, 225);
       recordingTimer.style('font-size', '20px');
       recordingTimer.style('text-align', 'center');
+
+      text1 = createP("How to use")
+      text1.position(900, 50);
+      text2 = createP("Open palm moving up and down to change note");
+      text2.position(800, 75);
+      text3 = createP("Back of palm moving up and down to change volume");
+      text3.position(800, 100);
+      text4 = createP("Fist facing camera to stop");
+      text4.position(800, 125);
+      text5 = createP("Back of fist to hold note and volume");
+      text5.position(800, 150);
     }
 
     function draw() {
       if (!playAll && !playback && !timerOn)
         timer = playbackLengthSlider.value();
-      timerText.html(timer);
+      timerText.html(playbackLengthSlider.value());
       timerText.position(530, 10);
       fill(127);
       rect(width / 2, height / 2, width, height);
@@ -220,7 +231,7 @@
 
           timer--;
           console.log(timer);
-          recordingTimer.html("Recording. " + timer + " seconds remaining");
+          recordingTimer.html("🔴 Recording. " + timer + " seconds remaining");
 
         }
         if (timer == 0) {
