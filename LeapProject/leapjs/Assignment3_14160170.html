@@ -10,7 +10,7 @@
 
   <script>
     var paused = false;
-    var latestFrame; // Declare a variable to hold the latest frame from Leap Motion
+    var latestFrame;
     var song;
     var palmScreen;
     var fistOpen;
@@ -63,22 +63,19 @@
     var timerText;
     var recordingText;
 
-
     osc1 = new p5.Oscillator();
-      osc2 = new p5.Oscillator();
-      osc3 = new p5.Oscillator();
-      osc4 = new p5.Oscillator();
+    osc2 = new p5.Oscillator();
+    osc3 = new p5.Oscillator();
+    osc4 = new p5.Oscillator();
     var oscs = [osc1, osc2, osc3, osc4];
 
-
-
-    const A = 440;  // Frequency of note A4
-    const B = 493.88;  // Frequency of note B4
-    const C = 523.25;  // Frequency of note C5
-    const D = 587.33;  // Frequency of note D5
-    const E = 659.26;  // Frequency of note E5
-    const F = 698.46;  // Frequency of note F5
-    const G = 783.99;  // Frequency of note G5
+    const A = 440;
+    const B = 493.88;
+    const C = 523.25;
+    const D = 587.33;
+    const E = 659.26;
+    const F = 698.46;
+    const G = 783.99;
 
     var lastNote1;
     var lastNote2;
@@ -136,8 +133,8 @@
       osc4.amp(0);
 
       audioInit = true;
-      
-  }
+
+    }
 
     function setup() {
       const myCanvas = createCanvas(400, 400);
@@ -158,7 +155,7 @@
       if (!playAll && !playback && !timerOn)
         timer = playbackLengthSlider.value();
       timerText.html(timer);
-      timerText.position(530,10);
+      timerText.position(530, 10);
       fill(127);
       rect(width / 2, height / 2, width, height);
       fill(0);
@@ -219,13 +216,12 @@
           palmPos4.push(palmScreen);
         }
 
-        //text(timer, 550, 0);
         if (frameCount % 60 == 0 && timer > 0) {
 
           timer--;
           console.log(timer);
           recordingTimer.html("Recording. " + timer + " seconds remaining");
-          
+
         }
         if (timer == 0) {
           recordingTimer.html("");
@@ -452,7 +448,6 @@
           index = 0;
           for (let i = 0; i < oscs.length; i++)
             oscs[i].amp(0, 0.1);
-          //  activePlaybackTrack = 0;
         }
       }
     }
@@ -489,7 +484,7 @@
 
     function Playback(num) {
       if (!playAll) {
-        if(!audioInit)
+        if (!audioInit)
           initializeAudio();
         activePlaybackTrack = num;
         if (activePlaybackTrack == 1) {
@@ -522,17 +517,17 @@
         }
         playback = true;
         activeOsc.start();
-        // song.play();
+
       }
     }
 
     function PlayAll() {
-      if (!playback){
-        if(!audioInit)
+      if (!playback) {
+        if (!audioInit)
           initializeAudio();
         playAll = true;
-        for(let i = 0; i < oscs.length; i++){
-          oscs[i].amp(0.5); // Adjust amplitude as needed
+        for (let i = 0; i < oscs.length; i++) {
+          oscs[i].amp(0.5);
         }
       }
     }
@@ -543,11 +538,6 @@
       playbackLengthSlider.position(562.5, 25);
       playbackLengthSlider.style('width', '150px');
 
-      //msg = createP('Timer');
-      //msg.position(530,10);
-      //textBox.position(540,25)
-      //textBox.size(50)
-      //1
       buttonRecord1 = createButton('Record Track 1');
       buttonRecord1.position(500, 75);
       buttonRecord1.mousePressed(function () {
@@ -559,7 +549,6 @@
         Playback(1);
       });
 
-      //2
       buttonRecord2 = createButton('Record Track 2');
       buttonRecord2.position(500, 100);
       buttonRecord2.mousePressed(function () {
@@ -571,7 +560,6 @@
         Playback(2);
       });
 
-      //3
       buttonRecord3 = createButton('Record Track 3');
       buttonRecord3.position(500, 125);
       buttonRecord3.mousePressed(function () {
@@ -583,7 +571,6 @@
         Playback(3);
       });
 
-      //4
       buttonRecord4 = createButton('Record Track 4');
       buttonRecord4.position(500, 150);
       buttonRecord4.mousePressed(function () {
@@ -600,15 +587,13 @@
       buttonPlayback4.mousePressed(function () {
         PlayAll();
       });
-
     }
 
     function playNote(note, osc, ampValue, panValue) {
       osc.freq(note);
       osc.amp(ampValue, 0.1);
-      // osc.pan(panValue);
+      osc.pan(panValue);
     }
-
 
   </script>
 </head>
